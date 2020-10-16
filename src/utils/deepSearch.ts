@@ -1,6 +1,14 @@
 import _ from "lodash";
 import { Jar, Step } from "../types";
-import { canFillJar, canTransfer, fillJar, hasReachedGoal, transferContent } from "./baseTools";
+import {
+  canDrainJar,
+  canFillJar,
+  canTransfer,
+  drainJar,
+  fillJar,
+  hasReachedGoal,
+  transferContent
+} from "./baseTools";
 
 export const deepSearch = (
   jarList: Jar[],
@@ -11,25 +19,35 @@ export const deepSearch = (
 ) => {
   //Check if mainJar is filled on target size
   if (!hasReachedGoal(mainJar, targetSize)) {
-    jarList.forEach((jar, index) => {
-      //Can Fill
+    for (let i = 0; i < jarList.length; i++) {
+      const jar = jarList[i];
 
       if (canFillJar(jar, jarList, history)) {
         const copyJarList = _.cloneDeep(jarList);
         const copySteps = _.cloneDeep(steps);
-        fillJar(copyJarList[index], copySteps);
+        fillJar(copyJarList[i], copySteps);
         deepSearch(copyJarList, targetSize, mainJar, history, copySteps);
       }
 
-      if (canTransfer(jar, jarList, history)) {
+      for (let j = 0; j < jarList.length; j++) {
+        const secondJar = jarList[j];
+        if (canTransfer(jar, secondJar, jarList, history)) {
+          const copyJarList = _.cloneDeep(jarList);
+          const copySteps = _.cloneDeep(steps);
+          transferContent(copyJarList[i], copyJarList[j], copySteps);
+          deepSearch(copyJarList, targetSize, mainJar, history, copySteps);
+        }
+      }
+
+      if (canDrainJar(jar, jarList, history)) {
         const copyJarList = _.cloneDeep(jarList);
         const copySteps = _.cloneDeep(steps);
-        transferContent(copyJarList[index], copySteps);
+        drainJar(copyJarList[i], copySteps);
         deepSearch(copyJarList, targetSize, mainJar, history, copySteps);
       }
       //Can Transfer
       //Can Drain
-    });
+    }
 
     //return result of function return
     return false;
