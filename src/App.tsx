@@ -3,7 +3,7 @@ import _ from "lodash";
 import styled from "styled-components";
 import { Button, Card, Checkbox, Form, Input, Row, Col, message } from "antd";
 import StepList from "./components/StepsList/StepsList";
-import { fillJarToTargetSize } from "./utils";
+import { deepSearch } from "./utils/deepSearch";
 import { JarMap, Step, Jar } from "./types";
 
 const limit = 3;
@@ -15,6 +15,7 @@ export default function App() {
   const [targetSize, setTargetSize] = React.useState<number>();
   const [stepList, setStepList] = React.useState<Step[]>([]);
   const [hasFailed, setHasFailed] = React.useState(false);
+  // const [loading, setLoading] = React.useState(false);
 
   const checkIntegrity = () => {
     for (const { name, maxSize } of Object.values(jarMap)) {
@@ -28,14 +29,16 @@ export default function App() {
   const onClickButton = () => {
     console.log(jarMap);
     if (checkIntegrity() && !isNaN(targetSize as number) && targetJar) {
-      const steps = fillJarToTargetSize(
-        _.cloneDeep(Object.values(jarMap)),
+      const jarList: Jar[] = _.cloneDeep(Object.values(jarMap));
+      const steps = deepSearch(
+        jarList,
         targetSize as number,
-        _.cloneDeep(jarMap[targetJar as number])
+        _.cloneDeep(jarMap[targetJar as number]),
+        [jarList.map(({ currentSize }) => currentSize)]
       );
       if (steps) {
         message.success("Success !!!");
-        setStepList(steps);
+        setStepList(steps as Step[]);
       } else {
         message.error("Is not possible with these Jars");
       }

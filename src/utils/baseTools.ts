@@ -3,7 +3,7 @@ import { Jar, Step } from "../types";
 export const hasHappened = (newMoment: number[], history: number[][]) => {
   for (const moment of history) {
     let equalValuesCount = 0;
-    for (let i = 0; newMoment.length; i++) {
+    for (let i = 0; i < newMoment.length; i++) {
       if (newMoment[i] === moment[i]) {
         equalValuesCount += 1;
       }
@@ -17,14 +17,26 @@ export const canDrainJar = (jar: Jar, jarList: Jar[], history: number[][]) => {
   const moment = jarList.map(({ id, currentSize }) =>
     id === jar.id ? 0 : currentSize
   );
-  return hasHappened(moment, history);
+  if (!hasHappened(moment, history)) {
+    history.push(moment);
+    console.log(history)
+    return true;
+  } else {
+    return false;
+  }
 };
 
 export const canFillJar = (jar: Jar, jarList: Jar[], history: number[][]) => {
   const moment = jarList.map(({ id, currentSize }) =>
     id === jar.id ? jar.maxSize : currentSize
   );
-  return hasHappened(moment, history);
+  if (!hasHappened(moment, history)) {
+    history.push(moment);
+    console.log(history)
+    return true;
+  } else {
+    return false;
+  }
 };
 
 export const canTransfer = (
@@ -55,15 +67,24 @@ export const canTransfer = (
     }
     return actualSize;
   });
-  return hasHappened(moment, history);
+  
+  if (!hasHappened(moment, history)) {
+
+    history.push(moment);
+    console.log(history)
+    return true;
+  } else {
+    return false;
+  }
 };
+
 export const hasReachedGoal = (mainJar: Jar, targetSize: number) => {
+  console.log(mainJar.currentSize)
   return mainJar.currentSize === targetSize;
 };
 
 export const transferContent = (jarA: Jar, jarB: Jar, steps: Step[]) => {
   const toTransferSize = jarB.maxSize - jarB.currentSize;
-  console.log("jar a size", jarB.currentSize);
 
   jarB.currentSize +=
     jarB.currentSize + jarA.currentSize > jarB.maxSize
@@ -73,8 +94,6 @@ export const transferContent = (jarA: Jar, jarB: Jar, steps: Step[]) => {
   jarA.currentSize -=
     toTransferSize > jarA.currentSize ? jarA.currentSize : toTransferSize;
 
-  console.log("transfer jar", jarA);
-  console.log("to jar", jarB);
   steps.push({
     type: "transfer",
     origin: {
@@ -91,7 +110,6 @@ export const transferContent = (jarA: Jar, jarB: Jar, steps: Step[]) => {
 export const drainJar = (jar: Jar, steps: Step[]) => {
   jar.currentSize = 0;
 
-  console.log("draining jar", jar);
   steps.push({
     type: "drain",
     destiny: {
@@ -103,7 +121,6 @@ export const drainJar = (jar: Jar, steps: Step[]) => {
 
 export const fillJar = (jar: Jar, steps: Step[]) => {
   jar.currentSize = jar.maxSize;
-  console.log("filling jar", jar);
   steps.push({
     type: "fill",
     destiny: {
