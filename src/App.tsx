@@ -1,7 +1,17 @@
 import * as React from "react";
 import _ from "lodash";
 import styled from "styled-components";
-import { Button, Card, Checkbox, Form, Input, Row, Col, message } from "antd";
+import {
+  Button,
+  Card,
+  Checkbox,
+  Form,
+  Row,
+  Col,
+  message,
+  Spin,
+  InputNumber,
+} from "antd";
 import StepList from "./components/StepsList/StepsList";
 import { deepSearch } from "./utils/deepSearch";
 import { JarMap, Step, Jar } from "./types";
@@ -26,15 +36,16 @@ export default function App() {
   };
 
   const onClickButton = () => {
-    setLoading(true);
     if (checkIntegrity() && !isNaN(targetSize as number) && targetJar) {
       const jarList: Jar[] = _.cloneDeep(Object.values(jarMap));
       const steps = deepSearch(
         jarList,
         targetSize as number,
         _.cloneDeep(jarMap[targetJar as number]),
-        [jarList.map(({ currentSize }) => currentSize)]
+        [jarList.map(({ currentSize }) => currentSize)],
       );
+
+      setLoading(false);
       if (steps) {
         message.success("Success !!!");
         setStepList(steps as Step[]);
@@ -42,9 +53,9 @@ export default function App() {
         message.error("Is not possible with these Jars");
       }
     } else {
+      setLoading(false);
       message.warn("Please fill all fields");
     }
-    setLoading(false);
   };
 
   const onRemove = (id: number) => {
@@ -62,26 +73,27 @@ export default function App() {
     let maxId = Object.values(jarMap).length
       ? Math.max.apply(
           null,
-          Object.values(jarMap).map(({ id }) => id)
+          Object.values(jarMap).map(({ id }) => id),
         ) + 1
       : 1;
     setJarMap({
       ...jarMap,
-      [maxId]: { id: maxId, currentSize: 0, name: "", maxSize: 0 }
+      [maxId]: { id: maxId, currentSize: 0, name: "", maxSize: 0 },
     });
     console.log(jarMap);
   };
+  console.log(loading);
   return (
     <Container>
-      <>
+      <Spin spinning={loading}>
         <Header>
           <label>{"Target Size:"}</label>
-          <Input
+          <InputNumber
             value={targetSize}
             style={{ width: "300px", margin: "0 20px" }}
-            loading={loading}
-            onChange={(e) => {
-              setTargetSize(Number(e.target.value));
+            disabled={loading}
+            onChange={(value) => {
+              setTargetSize(Number(value));
             }}
           />
           <Button
@@ -119,8 +131,8 @@ export default function App() {
                         rules={[
                           {
                             required: true,
-                            message: "Please input Jar's name!"
-                          }
+                            message: "Please input Jar's name!",
+                          },
                         ]}
                       >
                         <Input
@@ -138,8 +150,8 @@ export default function App() {
                           {
                             required: true,
                             pattern: new RegExp(/^[0-9]*$/),
-                            message: "Please input Jar's max size!"
-                          }
+                            message: "Please input Jar's max size!",
+                          },
                         ]}
                       >
                         <Input
@@ -169,7 +181,10 @@ export default function App() {
             type={"primary"}
             htmlType={"submit"}
             loading={loading}
-            onClick={onClickButton}
+            onClick={() => {
+              setLoading(true);
+              setTimeout(() => onClickButton(), 1000);
+            }}
             disabled={hasFailed}
           >
             {"Start"}
@@ -188,7 +203,7 @@ export default function App() {
             </Button>
           ) : null}
         </FixedBar>
-      </>
+      </Spin>
     </Container>
   );
 }
@@ -227,4 +242,11 @@ const FixedBar = styled.div`
   background: #ccc;
   padding: 0 10px;
   height: 50px;
+`;
+
+const SpinContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
 `;
