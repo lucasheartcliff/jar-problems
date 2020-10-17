@@ -7,7 +7,7 @@ import {
   drainJar,
   fillJar,
   hasReachedGoal,
-  transferContent
+  transferContent,
 } from "./baseTools";
 
 let resultSteps: Step[] = [];
@@ -17,7 +17,7 @@ export const deepSearch = (
   targetSize: number,
   mainJar: Jar,
   history: number[][],
-  steps: Step[] = []
+  steps: Step[] = [],
 ) => {
   //Check if mainJar is filled on target size
   if (!hasReachedGoal(mainJar, targetSize)) {
@@ -37,7 +37,7 @@ export const deepSearch = (
           targetSize,
           copyJarList[mainJarId],
           history,
-          copySteps
+          copySteps,
         );
         if (result) {
           return resultSteps;
@@ -47,7 +47,7 @@ export const deepSearch = (
       for (let j = 0; j < jarList.length; j++) {
         const secondJar = jarList[j];
         history = historyCopy;
-        if (canTransfer(jar, secondJar, jarList, history)) {
+        if (i !== j && canTransfer(jar, secondJar, jarList, history)) {
           const copyJarList = _.cloneDeep(jarList);
           const copySteps = _.cloneDeep(steps);
           transferContent(copyJarList[i], copyJarList[j], copySteps);
@@ -56,7 +56,7 @@ export const deepSearch = (
             targetSize,
             copyJarList[mainJarId],
             history,
-            copySteps
+            copySteps,
           );
           if (result) {
             return resultSteps;
@@ -73,7 +73,7 @@ export const deepSearch = (
           targetSize,
           copyJarList[mainJarId],
           history,
-          copySteps
+          copySteps,
         );
         if (result) {
           return resultSteps;
