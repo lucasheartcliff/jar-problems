@@ -6,16 +6,15 @@ import StepList from "./components/StepsList/StepsList";
 import { deepSearch } from "./utils/deepSearch";
 import { JarMap, Step, Jar } from "./types";
 
-const limit = 3;
+const limit = 10;
 
 export default function App() {
   const [jarMap, setJarMap] = React.useState<JarMap>({});
-
   const [targetJar, setTargetJar] = React.useState<number>();
   const [targetSize, setTargetSize] = React.useState<number>();
   const [stepList, setStepList] = React.useState<Step[]>([]);
   const [hasFailed, setHasFailed] = React.useState(false);
-  // const [loading, setLoading] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
 
   const checkIntegrity = () => {
     for (const { name, maxSize } of Object.values(jarMap)) {
@@ -27,7 +26,7 @@ export default function App() {
   };
 
   const onClickButton = () => {
-    console.log(jarMap);
+    setLoading(true);
     if (checkIntegrity() && !isNaN(targetSize as number) && targetJar) {
       const jarList: Jar[] = _.cloneDeep(Object.values(jarMap));
       const steps = deepSearch(
@@ -45,6 +44,7 @@ export default function App() {
     } else {
       message.warn("Please fill all fields");
     }
+    setLoading(false);
   };
 
   const onRemove = (id: number) => {
@@ -79,6 +79,7 @@ export default function App() {
           <Input
             value={targetSize}
             style={{ width: "300px", margin: "0 20px" }}
+            loading={loading}
             onChange={(e) => {
               setTargetSize(Number(e.target.value));
             }}
@@ -86,6 +87,7 @@ export default function App() {
           <Button
             type={"primary"}
             onClick={onCreateJar}
+            loading={loading}
             disabled={Object.values(jarMap).length >= limit}
           >
             Add Jar
@@ -166,6 +168,7 @@ export default function App() {
           <Button
             type={"primary"}
             htmlType={"submit"}
+            loading={loading}
             onClick={onClickButton}
             disabled={hasFailed}
           >

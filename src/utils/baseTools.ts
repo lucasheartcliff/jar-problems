@@ -19,7 +19,6 @@ export const canDrainJar = (jar: Jar, jarList: Jar[], history: number[][]) => {
   );
   if (!hasHappened(moment, history)) {
     history.push(moment);
-    console.log(history)
     return true;
   } else {
     return false;
@@ -32,7 +31,6 @@ export const canFillJar = (jar: Jar, jarList: Jar[], history: number[][]) => {
   );
   if (!hasHappened(moment, history)) {
     history.push(moment);
-    console.log(history)
     return true;
   } else {
     return false;
@@ -71,7 +69,6 @@ export const canTransfer = (
   if (!hasHappened(moment, history)) {
 
     history.push(moment);
-    console.log(history)
     return true;
   } else {
     return false;
@@ -79,7 +76,6 @@ export const canTransfer = (
 };
 
 export const hasReachedGoal = (mainJar: Jar, targetSize: number) => {
-  console.log(mainJar.currentSize)
   return mainJar.currentSize === targetSize;
 };
 
