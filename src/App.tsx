@@ -39,24 +39,24 @@ export default function App() {
   const onClickButton = () => {
     if (checkIntegrity() && !isNaN(targetSize as number) && targetJar) {
       const jarList: Jar[] = _.cloneDeep(Object.values(jarMap));
-      const steps = deepSearch(
+      const result = deepSearch(
         jarList,
         targetSize as number,
         _.cloneDeep(jarMap[targetJar as number]),
         [jarList.map(({ currentSize }) => currentSize)],
       );
-
-      setLoading(false);
-      if (steps) {
-        message.success("Success !!!");
-        setStepList(steps as Step[]);
-      } else {
-        message.error("Is not possible with these Jars");
-      }
+      result.then((steps) => {
+        if (steps) {
+          message.success("Success !!!");
+          setStepList(steps as Step[]);
+        } else {
+          message.error("Is not possible with these Jars");
+        }
+      });
     } else {
-      setLoading(false);
       message.warn("Please fill all fields");
     }
+    setLoading(false);
   };
 
   const onRemove = (id: number) => {
