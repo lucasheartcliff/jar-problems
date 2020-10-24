@@ -81,9 +81,8 @@ export default function App() {
       ...jarMap,
       [maxId]: { id: maxId, currentSize: 0, name: "", maxSize: 0 },
     });
-    console.log(jarMap);
   };
-  console.log(loading);
+
   return (
     <Container>
       <Spin spinning={loading}>
@@ -243,11 +242,4 @@ const FixedBar = styled.div`
   background: #ccc;
   padding: 0 10px;
   height: 50px;
-`;
-
-const SpinContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
 `;
