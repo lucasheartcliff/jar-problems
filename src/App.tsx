@@ -54,7 +54,12 @@ export default function App() {
           _.cloneDeep(jarMap[targetJar as number]),
           [jarList.map(({ currentSize }) => currentSize)],
         );
-      } else if (method === "breathFirst") {
+      } else if (method === "breadthFirst") {
+        result = breadthFirstSearch(
+          jarList,
+          targetSize as number,
+          _.cloneDeep(jarMap[targetJar as number]),
+        );
       }
 
       result.then((steps: Step[]) => {
