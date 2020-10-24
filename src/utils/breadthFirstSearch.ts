@@ -23,6 +23,7 @@ export const breadthFirstSearch = async (
 
   let resultSteps: Step[] = [];
   let history: number[][] = [];
+  
   try {
     while (
       !hasReachedGoal(mainJar, targetSize) &&
@@ -66,7 +67,7 @@ export const breadthFirstSearch = async (
           notFoundStep = false;
         }
 
-        if (hasReachedGoal(mainJar, targetSize)) {
+        if (hasReachedGoal(mainJar, targetSize) && !resultSteps.length) {
           console.log("Reached to goal", mainJar.currentSize);
           resultSteps = steps[i];
         } else if (notFoundStep) {
