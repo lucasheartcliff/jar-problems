@@ -12,13 +12,19 @@ import {
   message,
   Spin,
   InputNumber,
+  Steps,
+  Radio,
 } from "antd";
 import StepList from "./components/StepsList/StepsList";
 import { deepSearch } from "./utils/deepSearch";
+import { breadthFirstSearch } from "./utils/breadthFirstSearch";
 import { JarMap, Step, Jar } from "./types";
 
 const limit = 10;
-
+const options = [
+  { label: "Breadth First Search", value: "breadthFirst" },
+  { label: "Depth Search", value: "depth" },
+];
 export default function App() {
   const [jarMap, setJarMap] = React.useState<JarMap>({});
   const [targetJar, setTargetJar] = React.useState<number>();
@@ -26,6 +32,7 @@ export default function App() {
   const [stepList, setStepList] = React.useState<Step[]>([]);
   const [hasFailed, setHasFailed] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const [method, setMethod] = React.useState(options[0].value);
 
   const checkIntegrity = () => {
     for (const { name, maxSize } of Object.values(jarMap)) {
@@ -39,16 +46,21 @@ export default function App() {
   const onClickButton = () => {
     if (checkIntegrity() && !isNaN(targetSize as number) && targetJar) {
       const jarList: Jar[] = _.cloneDeep(Object.values(jarMap));
-      const result = deepSearch(
-        jarList,
-        targetSize as number,
-        _.cloneDeep(jarMap[targetJar as number]),
-        [jarList.map(({ currentSize }) => currentSize)],
-      );
-      result.then((steps) => {
+      let result: any;
+      if (method === "depth") {
+        result = deepSearch(
+          jarList,
+          targetSize as number,
+          _.cloneDeep(jarMap[targetJar as number]),
+          [jarList.map(({ currentSize }) => currentSize)],
+        );
+      } else if (method === "breathFirst") {
+      }
+
+      result.then((steps: Step[]) => {
         if (steps) {
           message.success("Success !!!");
-          setStepList(steps as Step[]);
+          setStepList(steps);
         } else {
           message.error("Is not possible with these Jars");
         }
@@ -104,6 +116,14 @@ export default function App() {
           >
             Add Jar
           </Button>
+          <Radio.Group
+            style={{ margin: "0 10px" }}
+            options={options}
+            onChange={(e) => {
+              return setMethod(e.target.value);
+            }}
+            value={method}
+          />
         </Header>
         <CardList>
           {!hasFailed && !stepList.length ? (
