@@ -12,7 +12,6 @@ import {
   message,
   Spin,
   InputNumber,
-  Steps,
   Radio,
 } from "antd";
 import StepList from "./components/StepsList/StepsList";
@@ -58,7 +57,7 @@ export default function App() {
         result = breadthFirstSearch(
           jarList,
           targetSize as number,
-          _.cloneDeep(jarMap[targetJar as number]),
+          jarList.find((jar:Jar) => jar.id === targetJar) as Jar
         );
       }
 

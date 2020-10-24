@@ -9,9 +9,6 @@ import {
   transferContent,
 } from "./baseTools";
 
-let resultSteps: Step[] = [];
-let history: number[][] = [];
-
 const initializingSteps = (jarList: Jar[]) => {
   return jarList.map(() => []);
 };
@@ -24,10 +21,14 @@ export const breadthFirstSearch = async (
   let steps: Step[][] = initializingSteps(jarList);
   let checkAllPossibilities = false;
 
+  let resultSteps: Step[] = [];
+  let history: number[][] = [];
+
   while (!hasReachedGoal(mainJar, targetSize) && !checkAllPossibilities) {
     let notFoundStep = true;
     for (let i = 0; i < jarList.length; i++) {
       const jar = jarList[i];
+      console.log("Main Jar", mainJar.currentSize);
       for (let j = 0; j < jarList.length; j++) {
         const secondJar = jarList[j];
         if (
@@ -36,6 +37,9 @@ export const breadthFirstSearch = async (
           canTransfer(jar, secondJar, jarList, history)
         ) {
           transferContent(jar, secondJar, steps[i]);
+          console.log(
+            `Tranfered ${jar.name} to ${secondJar.name} -> ${jar.currentSize} | ${secondJar.currentSize}`,
+          );
           notFoundStep = false;
         }
       }
@@ -45,6 +49,7 @@ export const breadthFirstSearch = async (
         canDrainJar(jar, jarList, history)
       ) {
         drainJar(jarList[i], steps[i]);
+        console.log(`Jar ${jar.name} was drained to ${jar.currentSize}`);
         notFoundStep = false;
       }
 
@@ -53,17 +58,21 @@ export const breadthFirstSearch = async (
         canFillJar(jar, jarList, history)
       ) {
         fillJar(jar, steps[i]);
+
+        console.log(`Jar ${jar.name} was filled to ${jar.currentSize}`);
         notFoundStep = false;
       }
 
       if (hasReachedGoal(mainJar, targetSize)) {
+        console.log("Reached to goal", mainJar.currentSize);
         resultSteps = steps[i];
       } else if (notFoundStep) {
+        console.log("Not found Solution");
         checkAllPossibilities = true;
       }
     }
   }
-
+  console.log(resultSteps, checkAllPossibilities);
   if (hasReachedGoal(mainJar, targetSize)) {
     return resultSteps;
   } else {
