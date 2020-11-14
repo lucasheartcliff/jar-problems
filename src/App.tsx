@@ -17,12 +17,14 @@ import {
 import StepList from "./components/StepsList/StepsList";
 import { deepSearch } from "./utils/deepSearch";
 import { breadthFirstSearch } from "./utils/breadthFirstSearch";
+import { greedySearch } from "./utils/greedySearch";
 import { JarMap, Step, Jar } from "./types";
 
 const limit = 10;
 const options = [
   { label: "Breadth First Search", value: "breadthFirst" },
   { label: "Depth Search", value: "depth" },
+  { label: "Greedy Search", value: "greedy" },
 ];
 export default function App() {
   const [jarMap, setJarMap] = React.useState<JarMap>({});
@@ -58,6 +60,12 @@ export default function App() {
           jarList,
           targetSize as number,
           jarList.find((jar: Jar) => jar.id === targetJar) as Jar,
+        );
+      } else if (method === "greedy") {
+        result = greedySearch(
+          jarList,
+          targetSize as number,
+          targetJar,
         );
       }
 

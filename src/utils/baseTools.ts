@@ -22,25 +22,31 @@ export const initializingSteps = (jarList: Jar[]) => {
 };
 
 export const canDrainJar = (jar: Jar, jarList: Jar[], history: number[][]) => {
-  const moment = jarList.map(({ id, currentSize }) =>
-    id === jar.id ? 0 : currentSize,
-  );
-  if (!hasHappened(moment, history)) {
-    return moment;
-  } else {
-    return false;
+  if (jar.currentSize > 0) {
+    const moment = jarList.map(({ id, currentSize }) =>
+      id === jar.id ? 0 : currentSize,
+    );
+    if (!hasHappened(moment, history)) {
+      return moment;
+    } else {
+      return false;
+    }
   }
+  return false;
 };
 
 export const canFillJar = (jar: Jar, jarList: Jar[], history: number[][]) => {
-  const moment = jarList.map(({ id, currentSize }) =>
-    id === jar.id ? jar.maxSize : currentSize,
-  );
-  if (!hasHappened(moment, history)) {
-    return moment;
-  } else {
-    return false;
+  if (jar.currentSize < jar.maxSize) {
+    const moment = jarList.map(({ id, currentSize }) =>
+      id === jar.id ? jar.maxSize : currentSize,
+    );
+    if (!hasHappened(moment, history)) {
+      return moment;
+    } else {
+      return false;
+    }
   }
+  return false;
 };
 
 export const canTransfer = (
@@ -49,34 +55,36 @@ export const canTransfer = (
   jarList: Jar[],
   history: number[][],
 ) => {
-  const toTransferSize = destiny.maxSize - destiny.currentSize;
+  if (origin.currentSize) {
+    const toTransferSize = destiny.maxSize - destiny.currentSize;
 
-  let originSize = origin.currentSize;
-  let destinySize = destiny.currentSize;
+    let originSize = origin.currentSize;
+    let destinySize = destiny.currentSize;
 
-  destinySize +=
-    destiny.currentSize + origin.currentSize > destiny.maxSize
-      ? toTransferSize
-      : origin.currentSize;
+    destinySize +=
+      destiny.currentSize + origin.currentSize > destiny.maxSize
+        ? toTransferSize
+        : origin.currentSize;
 
-  originSize -=
-    toTransferSize > origin.currentSize ? origin.currentSize : toTransferSize;
+    originSize -=
+      toTransferSize > origin.currentSize ? origin.currentSize : toTransferSize;
 
-  const moment = jarList.map(({ id, currentSize }) => {
-    let actualSize = currentSize;
-    if (id === origin.id) {
-      actualSize = originSize;
-    } else if (id === destiny.id) {
-      actualSize = destinySize;
+    const moment = jarList.map(({ id, currentSize }) => {
+      let actualSize = currentSize;
+      if (id === origin.id) {
+        actualSize = originSize;
+      } else if (id === destiny.id) {
+        actualSize = destinySize;
+      }
+      return actualSize;
+    });
+    if (!hasHappened(moment, history)) {
+      return moment;
+    } else {
+      return false;
     }
-    return actualSize;
-  });
-
-  if (!hasHappened(moment, history)) {
-    return moment;
-  } else {
-    return false;
   }
+  return false;
 };
 
 export const hasReachedGoal = (mainJar: Jar, targetSize: number) => {
