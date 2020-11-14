@@ -7,11 +7,12 @@ import {
   drainJar,
   fillJar,
   hasReachedGoal,
+  initializingSteps,
   setMomentOnHistory,
   transferContent,
 } from "./baseTools";
 
-let resultSteps: Step[] = [];
+let resultSteps: Step[][] = [];
 let historyList: number[][][];
 
 const hasHappenedBefore = (level: number, moment: number[]) => {
@@ -30,34 +31,40 @@ const hasHappenedBefore = (level: number, moment: number[]) => {
 };
 
 export const greedySearch = async (
-  jarList: Jar[],
+  initialJarList: Jar[],
   targetSize: number,
-  mainJar: Jar,
+  initialMainJar: Jar,
   steps: Step[] = [],
-  level: number = 0,
 ) => {
   try {
     let mappedAllPaths = false;
     while (!mappedAllPaths) {
+      let mainJar = _.cloneDeep(initialMainJar);
+      let jarList = _.cloneDeep(initialJarList);
+
+      let checkAllPossibilities = 0;
       let history: number[][] = [];
+
+      let steps: Step[][] = initializingSteps(jarList);
+      let level = 0;
+
       while (
         !hasReachedGoal(mainJar, targetSize) &&
         checkAllPossibilities !== jarList.length
       ) {
         let notFoundStep = true;
         let moment;
-        let countNotFinded = 0;
         for (let i = 0; i < jarList.length; i++) {
           const jar = jarList[i];
           console.log("Main Jar", mainJar.currentSize);
           for (let j = 0; j < jarList.length; j++) {
             const secondJar = jarList[j];
-
             moment = canTransfer(jar, secondJar, jarList, history);
             if (
               i !== j &&
               !hasReachedGoal(mainJar, targetSize) &&
-              isArray(moment)
+              isArray(moment) &&
+              hasHappenedBefore(level, moment)
             ) {
               setMomentOnHistory(moment, history);
               transferContent(jar, secondJar, steps[i]);
@@ -65,11 +72,16 @@ export const greedySearch = async (
                 `Tranfered ${jar.name} to ${secondJar.name} -> ${jar.currentSize} | ${secondJar.currentSize}`,
               );
               notFoundStep = false;
+              break;
             }
           }
 
           moment = canDrainJar(jar, jarList, history);
-          if (!hasReachedGoal(mainJar, targetSize) && isArray(moment)) {
+          if (
+            !hasReachedGoal(mainJar, targetSize) &&
+            isArray(moment) &&
+            hasHappenedBefore(level, moment)
+          ) {
             setMomentOnHistory(moment, history);
             drainJar(jarList[i], steps[i]);
             console.log(`Jar ${jar.name} was drained to ${jar.currentSize}`);
@@ -77,7 +89,11 @@ export const greedySearch = async (
           }
 
           moment = canFillJar(jar, jarList, history);
-          if (!hasReachedGoal(mainJar, targetSize) && isArray(moment)) {
+          if (
+            !hasReachedGoal(mainJar, targetSize) &&
+            isArray(moment) &&
+            hasHappenedBefore(level, moment)
+          ) {
             setMomentOnHistory(moment, history);
             fillJar(jar, steps[i]);
             console.log(`Jar ${jar.name} was filled to ${jar.currentSize}`);
@@ -86,12 +102,14 @@ export const greedySearch = async (
 
           if (hasReachedGoal(mainJar, targetSize) && !resultSteps.length) {
             console.log("Reached to goal", mainJar.currentSize);
-            resultSteps = steps[i];
+            historyList.push(history);
+            resultSteps.push(steps[i]);
           } else if (notFoundStep) {
             console.log("Not found Solution");
-            countNotFinded += 1;
+            mappedAllPaths = true;
           }
         }
+        level++;
       }
     }
   } catch {

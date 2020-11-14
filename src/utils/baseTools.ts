@@ -17,6 +17,10 @@ export const setMomentOnHistory = (moment: number[], history: number[][]) => {
   history.push(moment);
 };
 
+export const initializingSteps = (jarList: Jar[]) => {
+  return jarList.map(() => []);
+};
+
 export const canDrainJar = (jar: Jar, jarList: Jar[], history: number[][]) => {
   const moment = jarList.map(({ id, currentSize }) =>
     id === jar.id ? 0 : currentSize,
