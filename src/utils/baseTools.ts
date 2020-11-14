@@ -13,13 +13,16 @@ export const hasHappened = (newMoment: number[], history: number[][]) => {
   return false;
 };
 
+export const setMomentOnHistory = (moment: number[], history: number[][]) => {
+  history.push(moment);
+};
+
 export const canDrainJar = (jar: Jar, jarList: Jar[], history: number[][]) => {
   const moment = jarList.map(({ id, currentSize }) =>
-    id === jar.id ? 0 : currentSize
+    id === jar.id ? 0 : currentSize,
   );
   if (!hasHappened(moment, history)) {
-    history.push(moment);
-    return true;
+    return moment;
   } else {
     return false;
   }
@@ -27,11 +30,10 @@ export const canDrainJar = (jar: Jar, jarList: Jar[], history: number[][]) => {
 
 export const canFillJar = (jar: Jar, jarList: Jar[], history: number[][]) => {
   const moment = jarList.map(({ id, currentSize }) =>
-    id === jar.id ? jar.maxSize : currentSize
+    id === jar.id ? jar.maxSize : currentSize,
   );
   if (!hasHappened(moment, history)) {
-    history.push(moment);
-    return true;
+    return moment;
   } else {
     return false;
   }
@@ -41,7 +43,7 @@ export const canTransfer = (
   origin: Jar,
   destiny: Jar,
   jarList: Jar[],
-  history: number[][]
+  history: number[][],
 ) => {
   const toTransferSize = destiny.maxSize - destiny.currentSize;
 
@@ -65,11 +67,9 @@ export const canTransfer = (
     }
     return actualSize;
   });
-  
-  if (!hasHappened(moment, history)) {
 
-    history.push(moment);
-    return true;
+  if (!hasHappened(moment, history)) {
+    return moment;
   } else {
     return false;
   }
@@ -94,12 +94,12 @@ export const transferContent = (jarA: Jar, jarB: Jar, steps: Step[]) => {
     type: "transfer",
     origin: {
       name: jarA.name,
-      currentSize: jarA.currentSize
+      currentSize: jarA.currentSize,
     },
     destiny: {
       name: jarB.name,
-      currentSize: jarB.currentSize
-    }
+      currentSize: jarB.currentSize,
+    },
   });
 };
 
@@ -110,8 +110,8 @@ export const drainJar = (jar: Jar, steps: Step[]) => {
     type: "drain",
     destiny: {
       name: jar.name,
-      currentSize: jar.currentSize
-    }
+      currentSize: jar.currentSize,
+    },
   });
 };
 
@@ -121,7 +121,7 @@ export const fillJar = (jar: Jar, steps: Step[]) => {
     type: "fill",
     destiny: {
       name: jar.name,
-      currentSize: jar.currentSize
-    }
+      currentSize: jar.currentSize,
+    },
   });
 };

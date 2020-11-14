@@ -12,7 +12,7 @@ import {
   message,
   Spin,
   InputNumber,
-  Radio,
+  Select,
 } from "antd";
 import StepList from "./components/StepsList/StepsList";
 import { deepSearch } from "./utils/deepSearch";
@@ -57,7 +57,7 @@ export default function App() {
         result = breadthFirstSearch(
           jarList,
           targetSize as number,
-          jarList.find((jar:Jar) => jar.id === targetJar) as Jar
+          jarList.find((jar: Jar) => jar.id === targetJar) as Jar,
         );
       }
 
@@ -103,31 +103,41 @@ export default function App() {
     <Container>
       <Spin spinning={loading}>
         <Header>
-          <label>{"Target Size:"}</label>
-          <InputNumber
-            value={targetSize}
-            style={{ width: "300px", margin: "0 20px" }}
-            disabled={loading}
-            onChange={(value) => {
-              setTargetSize(Number(value));
-            }}
-          />
-          <Button
-            type={"primary"}
-            onClick={onCreateJar}
-            loading={loading}
-            disabled={Object.values(jarMap).length >= limit}
-          >
-            Add Jar
-          </Button>
-          <Radio.Group
-            style={{ margin: "0 10px" }}
-            options={options}
-            onChange={(e) => {
-              return setMethod(e.target.value);
-            }}
-            value={method}
-          />
+          <div>
+            <label>{"Target Size:"}</label>
+            <InputNumber
+              value={targetSize}
+              style={{ width: "300px", margin: "0 20px" }}
+              disabled={loading}
+              onChange={(value) => {
+                setTargetSize(Number(value));
+              }}
+            />
+            <Button
+              type={"primary"}
+              onClick={onCreateJar}
+              loading={loading}
+              disabled={Object.values(jarMap).length >= limit}
+            >
+              Add Jar
+            </Button>
+          </div>
+          <div>
+            <label style={{ marginLeft: 30 }}>{"Method:"}</label>
+            <Select
+              style={{ margin: "0 10px", width: 250 }}
+              value={method}
+              onChange={(value: string) => {
+                return setMethod(value);
+              }}
+            >
+              {options.map(({ value, label }, index) => (
+                <Select.Option key={index} value={value}>
+                  {label}
+                </Select.Option>
+              ))}
+            </Select>
+          </div>
         </Header>
         <CardList>
           {!hasFailed && !stepList.length ? (
@@ -254,6 +264,7 @@ const Header = styled.div`
   z-index: 50;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 0 10px;
 `;
 const FixedBar = styled.div`

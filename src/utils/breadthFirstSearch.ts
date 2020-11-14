@@ -1,3 +1,4 @@
+import { isArray } from "lodash";
 import { Jar, Step } from "../types";
 import {
   canDrainJar,
@@ -6,6 +7,7 @@ import {
   drainJar,
   fillJar,
   hasReachedGoal,
+  setMomentOnHistory,
   transferContent,
 } from "./baseTools";
 
@@ -23,24 +25,28 @@ export const breadthFirstSearch = async (
 
   let resultSteps: Step[] = [];
   let history: number[][] = [];
-  
+
   try {
     while (
       !hasReachedGoal(mainJar, targetSize) &&
       checkAllPossibilities !== jarList.length
     ) {
       let notFoundStep = true;
+      let moment;
       let countNotFinded = 0;
       for (let i = 0; i < jarList.length; i++) {
         const jar = jarList[i];
         console.log("Main Jar", mainJar.currentSize);
         for (let j = 0; j < jarList.length; j++) {
           const secondJar = jarList[j];
+
+          moment = canTransfer(jar, secondJar, jarList, history);
           if (
             i !== j &&
             !hasReachedGoal(mainJar, targetSize) &&
-            canTransfer(jar, secondJar, jarList, history)
+            isArray(moment)
           ) {
+            setMomentOnHistory(moment, history);
             transferContent(jar, secondJar, steps[i]);
             console.log(
               `Tranfered ${jar.name} to ${secondJar.name} -> ${jar.currentSize} | ${secondJar.currentSize}`,
@@ -49,19 +55,17 @@ export const breadthFirstSearch = async (
           }
         }
 
-        if (
-          !hasReachedGoal(mainJar, targetSize) &&
-          canDrainJar(jar, jarList, history)
-        ) {
+        moment = canDrainJar(jar, jarList, history);
+        if (!hasReachedGoal(mainJar, targetSize) && isArray(moment)) {
+          setMomentOnHistory(moment, history);
           drainJar(jarList[i], steps[i]);
           console.log(`Jar ${jar.name} was drained to ${jar.currentSize}`);
           notFoundStep = false;
         }
 
-        if (
-          !hasReachedGoal(mainJar, targetSize) &&
-          canFillJar(jar, jarList, history)
-        ) {
+        moment = canFillJar(jar, jarList, history);
+        if (!hasReachedGoal(mainJar, targetSize) && isArray(moment)) {
+          setMomentOnHistory(moment, history);
           fillJar(jar, steps[i]);
           console.log(`Jar ${jar.name} was filled to ${jar.currentSize}`);
           notFoundStep = false;

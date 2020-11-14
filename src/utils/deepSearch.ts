@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _, { isArray } from "lodash";
 import { Jar, Step } from "../types";
 import {
   canDrainJar,
@@ -7,6 +7,7 @@ import {
   drainJar,
   fillJar,
   hasReachedGoal,
+  setMomentOnHistory,
   transferContent,
 } from "./baseTools";
 
@@ -27,9 +28,11 @@ export const deepSearch = async (
         const mainJarId = jarList.findIndex(({ id }) => mainJar.id === id);
         const historyCopy = _.cloneDeep(history);
         let result: boolean | Step[] = false;
-
+        let moment;
         history = historyCopy;
-        if (canFillJar(jar, jarList, history)) {
+        moment = canFillJar(jar, jarList, history);
+        if (isArray(moment)) {
+          setMomentOnHistory(moment, history);
           const copyJarList = _.cloneDeep(jarList);
           const copySteps = _.cloneDeep(steps);
           fillJar(copyJarList[i], copySteps);
@@ -48,7 +51,9 @@ export const deepSearch = async (
         for (let j = 0; j < jarList.length; j++) {
           const secondJar = jarList[j];
           history = historyCopy;
-          if (i !== j && canTransfer(jar, secondJar, jarList, history)) {
+          moment = canTransfer(jar, secondJar, jarList, history);
+          if (i !== j && isArray(moment)) {
+            setMomentOnHistory(moment, history);
             const copyJarList = _.cloneDeep(jarList);
             const copySteps = _.cloneDeep(steps);
             transferContent(copyJarList[i], copyJarList[j], copySteps);
@@ -65,7 +70,9 @@ export const deepSearch = async (
           }
         }
         history = historyCopy;
-        if (canDrainJar(jar, jarList, history)) {
+        moment = canDrainJar(jar, jarList, history);
+        if (isArray(moment)) {
+          setMomentOnHistory(moment, history);
           const copyJarList = _.cloneDeep(jarList);
           const copySteps = _.cloneDeep(steps);
           drainJar(copyJarList[i], copySteps);
