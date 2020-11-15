@@ -7,7 +7,6 @@ import {
   drainJar,
   fillJar,
   hasReachedGoal,
-  initializingSteps,
   setMomentOnHistory,
   transferContent,
 } from "./baseTools";
@@ -16,21 +15,32 @@ let resultSteps: Step[][] = [];
 let historyList: number[][][] = [];
 
 const hasHappenedBefore = (level: number, moment: number[]) => {
-  for (const history of historyList) {
-    if (history.length - 1 >= level) {
-      let equalValuesCount = 0;
-      for (let i = 0; i < history[level].length; i++) {
-        if (history[level][i] === moment[i]) {
-          equalValuesCount += 1;
+  if (
+    level >=
+    Math.abs(
+      moment.length -
+        Math.floor(
+          Math.pow(moment.length, (level + 1)) - historyList.length,
+        ),
+    )
+  ) {
+    for (const history of historyList) {
+      if (history.length - 1 >= level) {
+        let equalValuesCount = 0;
+        for (let i = 0; i < history[level].length; i++) {
+          if (history[level][i] === moment[i]) {
+            equalValuesCount += 1;
+          }
         }
+        if (equalValuesCount === moment.length) return true;
       }
-      if (equalValuesCount === moment.length) return true;
     }
   }
+
   return false;
 };
 
-export const greedySearch = async (
+export const orderedSearch = async (
   initialJarList: Jar[],
   targetSize: number,
   targetJar: Jar["id"],
@@ -38,6 +48,8 @@ export const greedySearch = async (
 ) => {
   try {
     let mappedAllPaths = false;
+    let notFoundPathCount = 0;
+
     while (!mappedAllPaths) {
       let jarList = _.cloneDeep(initialJarList);
       let mainJar = jarList.find((jar: Jar) => jar.id === targetJar) as Jar;
@@ -45,8 +57,9 @@ export const greedySearch = async (
       let checkAllPossibilities = 0;
       let history: number[][] = [];
 
-      let steps: Step[][] = initializingSteps(jarList);
+      let steps: Step[] = [];
       let level = 0;
+      mappedAllPaths = notFoundPathCount > 2;
 
       while (
         !hasReachedGoal(mainJar, targetSize) &&
@@ -57,7 +70,7 @@ export const greedySearch = async (
         let moment;
         for (let i = 0; i < jarList.length; i++) {
           const jar = jarList[i];
-          console.log("Main Jar", mainJar.currentSize);
+          // console.log("Main Jar", mainJar.currentSize);
           for (let j = 0; j < jarList.length; j++) {
             const secondJar = jarList[j];
             moment = canTransfer(jar, secondJar, jarList, history);
@@ -68,7 +81,7 @@ export const greedySearch = async (
               !hasHappenedBefore(level, moment)
             ) {
               setMomentOnHistory(moment, history);
-              transferContent(jar, secondJar, steps[i]);
+              transferContent(jar, secondJar, steps);
               console.log(
                 `Tranfered ${jar.name} to ${secondJar.name} -> ${jar.currentSize} | ${secondJar.currentSize}`,
               );
@@ -83,7 +96,7 @@ export const greedySearch = async (
             !hasHappenedBefore(level, moment)
           ) {
             setMomentOnHistory(moment, history);
-            drainJar(jarList[i], steps[i]);
+            drainJar(jarList[i], steps);
             console.log(`Jar ${jar.name} was drained to ${jar.currentSize}`);
             notFoundStep = false;
           }
@@ -95,17 +108,18 @@ export const greedySearch = async (
             !hasHappenedBefore(level, moment)
           ) {
             setMomentOnHistory(moment, history);
-            fillJar(jar, steps[i]);
+            fillJar(jar, steps);
             console.log(`Jar ${jar.name} was filled to ${jar.currentSize}`);
             notFoundStep = false;
           }
         }
-        if (hasReachedGoal(mainJar, targetSize) && !resultSteps.length) {
+        if (hasReachedGoal(mainJar, targetSize)) {
           console.log("Reached to goal", mainJar.currentSize);
           historyList.push(history);
-          resultSteps.push(steps[i]);
+          resultSteps.push(steps);
         } else if (notFoundStep) {
           console.log("Not found Solution");
+          notFoundPathCount++;
           mappedAllPaths = true;
         }
         level++;
@@ -116,13 +130,14 @@ export const greedySearch = async (
     let bestPath;
     for (let i = 0; i < resultSteps.length; i++) {
       for (let j = 0; j < resultSteps.length; j++) {
-        if (resultSteps[i].length > resultSteps[j].length) {
+        if (i !== j && resultSteps[i].length >= resultSteps[j].length) {
           bestPath = resultSteps[j];
         }
       }
     }
     return bestPath;
-  } catch {
+  } catch (error) {
+    console.error(error);
     return false;
   }
 };
