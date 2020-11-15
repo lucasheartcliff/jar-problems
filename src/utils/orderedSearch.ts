@@ -15,15 +15,7 @@ let resultSteps: Step[][] = [];
 let historyList: number[][][] = [];
 
 const hasHappenedBefore = (level: number, moment: number[]) => {
-  if (
-    level >=
-    Math.abs(
-      moment.length -
-        Math.floor(
-          Math.pow(moment.length, (level + 1)) - historyList.length,
-        ),
-    )
-  ) {
+  if (level >= Math.abs(moment.length - Math.pow(moment.length, level + 1))) {
     for (const history of historyList) {
       if (history.length - 1 >= level) {
         let equalValuesCount = 0;
@@ -44,7 +36,6 @@ export const orderedSearch = async (
   initialJarList: Jar[],
   targetSize: number,
   targetJar: Jar["id"],
-  steps: Step[] = [],
 ) => {
   try {
     let mappedAllPaths = false;

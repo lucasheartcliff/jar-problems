@@ -62,11 +62,7 @@ export default function App() {
           jarList.find((jar: Jar) => jar.id === targetJar) as Jar,
         );
       } else if (method === "ordered") {
-        result = orderedSearch(
-          jarList,
-          targetSize as number,
-          targetJar,
-        );
+        result = orderedSearch(jarList, targetSize as number, targetJar);
       }
 
       result.then((steps: Step[]) => {
@@ -167,6 +163,7 @@ export default function App() {
                   >
                     <Form name="basic" validateTrigger={["onChange", "onBlur"]}>
                       <Form.Item
+                        key={id}
                         label="Name"
                         name="name"
                         initialValue={name}
@@ -197,6 +194,7 @@ export default function App() {
                         ]}
                       >
                         <Input
+                          key={id}
                           onChange={(e) =>
                             onChangeInfo(id, "maxSize", Number(e.target.value))
                           }
