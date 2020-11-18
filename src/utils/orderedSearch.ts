@@ -11,11 +11,12 @@ import {
   transferContent,
 } from "./baseTools";
 
-let resultSteps: Step[][] = [];
-let historyList: number[][][] = [];
-
-const hasHappenedBefore = (level: number, moment: number[]) => {
-  if (level >= Math.abs(moment.length - Math.pow(moment.length, level + 1))) {
+const hasHappenedBefore = (
+  level: number,
+  moment: number[],
+  historyList: number[][][],
+) => {
+  if (historyList.length > (moment.length+level)) {
     for (const history of historyList) {
       if (history.length - 1 >= level) {
         let equalValuesCount = 0;
@@ -40,6 +41,8 @@ export const orderedSearch = async (
   try {
     let mappedAllPaths = false;
     let notFoundPathCount = 0;
+    let resultSteps: Step[][] = [];
+    let historyList: number[][][] = [];
 
     while (!mappedAllPaths) {
       let jarList = _.cloneDeep(initialJarList);
@@ -50,7 +53,7 @@ export const orderedSearch = async (
 
       let steps: Step[] = [];
       let level = 0;
-      mappedAllPaths = notFoundPathCount > 2;
+      mappedAllPaths = notFoundPathCount > 3;
 
       while (
         !hasReachedGoal(mainJar, targetSize) &&
@@ -69,7 +72,7 @@ export const orderedSearch = async (
               i !== j &&
               !hasReachedGoal(mainJar, targetSize) &&
               isArray(moment) &&
-              !hasHappenedBefore(level, moment)
+              !hasHappenedBefore(level, moment, historyList)
             ) {
               setMomentOnHistory(moment, history);
               transferContent(jar, secondJar, steps);
@@ -84,7 +87,7 @@ export const orderedSearch = async (
           if (
             !hasReachedGoal(mainJar, targetSize) &&
             isArray(moment) &&
-            !hasHappenedBefore(level, moment)
+            !hasHappenedBefore(level, moment, historyList)
           ) {
             setMomentOnHistory(moment, history);
             drainJar(jarList[i], steps);
@@ -96,7 +99,7 @@ export const orderedSearch = async (
           if (
             !hasReachedGoal(mainJar, targetSize) &&
             isArray(moment) &&
-            !hasHappenedBefore(level, moment)
+            !hasHappenedBefore(level, moment, historyList)
           ) {
             setMomentOnHistory(moment, history);
             fillJar(jar, steps);
@@ -105,7 +108,7 @@ export const orderedSearch = async (
           }
         }
         if (hasReachedGoal(mainJar, targetSize)) {
-          console.log("Reached to goal", mainJar.currentSize);
+          console.log("Reached to goal", mainJar.currentSize, targetSize);
           historyList.push(history);
           resultSteps.push(steps);
         } else if (notFoundStep) {
