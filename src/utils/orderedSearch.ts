@@ -14,7 +14,7 @@ import {
 const hasHappenedBefore = (
   level: number,
   moment: number[],
-  historyList: number[][][],
+  historyList: History[],
 ) => {
   if (historyList.length > (moment.length+level)) {
     for (const history of historyList) {
@@ -42,14 +42,14 @@ export const orderedSearch = async (
     let mappedAllPaths = false;
     let notFoundPathCount = 0;
     let resultSteps: Step[][] = [];
-    let historyList: number[][][] = [];
+    let historyList: History[] = [];
 
     while (!mappedAllPaths) {
       let jarList = _.cloneDeep(initialJarList);
       let mainJar = jarList.find((jar: Jar) => jar.id === targetJar) as Jar;
 
       let checkAllPossibilities = 0;
-      let history: number[][] = [];
+      let history: History = [];
 
       let steps: Step[] = [];
       let level = 0;

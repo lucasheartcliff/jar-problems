@@ -18,3 +18,5 @@ export interface Step {
   origin?: SimplifiedJar;
   destiny: SimplifiedJar;
 }
+
+export type History  = number[][]

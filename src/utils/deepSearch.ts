@@ -17,7 +17,7 @@ export const deepSearch = async (
   jarList: Jar[],
   targetSize: number,
   mainJar: Jar,
-  history: number[][],
+  history: History,
   steps: Step[] = [],
 ) => {
   try {

@@ -1,6 +1,6 @@
-import { Jar, Step } from "../types";
+import { Jar, Step, History } from "../types";
 
-export const hasHappened = (newMoment: number[], history: number[][]) => {
+export const hasHappened = (newMoment: number[], history: History) => {
   for (const moment of history) {
     let equalValuesCount = 0;
     for (let i = 0; i < newMoment.length; i++) {
@@ -13,7 +13,7 @@ export const hasHappened = (newMoment: number[], history: number[][]) => {
   return false;
 };
 
-export const setMomentOnHistory = (moment: number[], history: number[][]) => {
+export const setMomentOnHistory = (moment: number[], history: History) => {
   history.push(moment);
 };
 
@@ -21,7 +21,7 @@ export const initializingSteps = (jarList: Jar[]) => {
   return jarList.map(() => []);
 };
 
-export const canDrainJar = (jar: Jar, jarList: Jar[], history: number[][]) => {
+export const canDrainJar = (jar: Jar, jarList: Jar[], history: History) => {
   if (jar.currentSize > 0) {
     const moment = jarList.map(({ id, currentSize }) =>
       id === jar.id ? 0 : currentSize,
@@ -35,7 +35,7 @@ export const canDrainJar = (jar: Jar, jarList: Jar[], history: number[][]) => {
   return false;
 };
 
-export const canFillJar = (jar: Jar, jarList: Jar[], history: number[][]) => {
+export const canFillJar = (jar: Jar, jarList: Jar[], history: History) => {
   if (jar.currentSize < jar.maxSize) {
     const moment = jarList.map(({ id, currentSize }) =>
       id === jar.id ? jar.maxSize : currentSize,
@@ -53,7 +53,7 @@ export const canTransfer = (
   origin: Jar,
   destiny: Jar,
   jarList: Jar[],
-  history: number[][],
+  history: History,
 ) => {
   if (origin.currentSize) {
     const toTransferSize = destiny.maxSize - destiny.currentSize;

@@ -18,13 +18,15 @@ import StepList from "./components/StepsList/StepsList";
 import { deepSearch } from "./utils/deepSearch";
 import { breadthFirstSearch } from "./utils/breadthFirstSearch";
 import { orderedSearch } from "./utils/orderedSearch";
-import { JarMap, Step, Jar } from "./types";
+import { greedySearch } from "./utils/greedySearch";
+import { JarMap, Step, Jar,History } from "./types";
 
 const limit = 10;
 const options = [
   { label: "Breadth First Search", value: "breadthFirst" },
   { label: "Depth Search", value: "depth" },
   { label: "Ordered Search", value: "ordered" },
+  { label: "Greedy Search", value: "greedy" },
 ];
 export default function App() {
   const [jarMap, setJarMap] = React.useState<JarMap>({});
@@ -53,7 +55,7 @@ export default function App() {
           jarList,
           targetSize as number,
           _.cloneDeep(jarMap[targetJar as number]),
-          [jarList.map(({ currentSize }) => currentSize)],
+          [jarList.map(({ currentSize }) => currentSize)] as any,
         );
       } else if (method === "breadthFirst") {
         result = breadthFirstSearch(
@@ -63,6 +65,8 @@ export default function App() {
         );
       } else if (method === "ordered") {
         result = orderedSearch(jarList, targetSize as number, targetJar);
+      } else if (method === "greedy") {
+        result = greedySearch(jarList, targetSize as number, targetJar);
       }
 
       result.then((steps: Step[]) => {

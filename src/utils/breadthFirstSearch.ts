@@ -24,7 +24,7 @@ export const breadthFirstSearch = async (
   let checkAllPossibilities = 0;
 
   let resultSteps: Step[] = [];
-  let history: number[][] = [];
+  let history: History = [];
 
   try {
     while (
