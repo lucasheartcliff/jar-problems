@@ -16,7 +16,7 @@ const hasHappenedBefore = (
   moment: number[],
   historyList: History[],
 ) => {
-  if (historyList.length > moment.length + level) {
+  if (historyList.length > moment.length) {
     for (const history of historyList) {
       if (history.length - 1 >= level) {
         let equalValuesCount = 0;
@@ -43,6 +43,7 @@ const search = (
   steps: Step[] = [],
   level: number = 0,
 ) => {
+  console.log("call", level);
   if (!hasReachedGoal(mainJar, targetSize)) {
     for (let i = 0; i < jarList.length; i++) {
       const jar = jarList[i];
@@ -58,7 +59,7 @@ const search = (
       if (isArray(moment) && !hasHappenedBefore(level, moment, historyList)) {
         const copyJarList = _.cloneDeep(jarList);
         const copySteps = _.cloneDeep(steps);
-
+        console.log("filling");
         setMomentOnHistory(moment, history);
 
         let newScore = score + 1;
@@ -73,8 +74,9 @@ const search = (
           historyList,
           newScore,
           copySteps,
+          level + 1,
         );
-        if (result.steps) {
+        if (result?.steps) {
           return result;
         }
       }
@@ -85,9 +87,14 @@ const search = (
         history = historyCopy;
         moment = canTransfer(jar, secondJar, jarList, history);
 
-        if (i !== j && isArray(moment)) {
+        if (
+          i !== j &&
+          isArray(moment) &&
+          !hasHappenedBefore(level, moment, historyList)
+        ) {
           const copyJarList = _.cloneDeep(jarList);
           const copySteps = _.cloneDeep(steps);
+          console.log("transfer");
 
           let newScore = score;
 
@@ -103,8 +110,9 @@ const search = (
             historyList,
             newScore,
             copySteps,
+            level + 1,
           );
-          if (result.steps) {
+          if (result?.steps) {
             return result;
           }
         }
@@ -113,13 +121,14 @@ const search = (
       history = historyCopy;
       moment = canDrainJar(jar, jarList, history);
 
-      if (isArray(moment)) {
+      if (isArray(moment) && !hasHappenedBefore(level, moment, historyList)) {
         const copyJarList = _.cloneDeep(jarList);
         const copySteps = _.cloneDeep(steps);
 
         let newScore = score + 2;
 
         setMomentOnHistory(moment, history);
+        console.log("drain");
 
         drainJar(copyJarList[i], copySteps);
 
@@ -131,8 +140,9 @@ const search = (
           historyList,
           newScore,
           copySteps,
+          level + 1,
         );
-        if (result.steps) {
+        if (result?.steps) {
           return result;
         }
       }
@@ -140,9 +150,11 @@ const search = (
   } else {
     return { steps, score };
   }
+  debugger;
+  throw "Error";
 };
 
-export const greedySearch = async (
+export const greedySearch = async(
   initialJarList: Jar[],
   targetSize: number,
   targetJar: Jar["id"],
@@ -153,13 +165,13 @@ export const greedySearch = async (
     let historyList: History[] = [];
     let scoreList: number[] = [];
 
-    while (!mappedAllPaths) {
+    let pathsCount = 0;
+
+    while (!mappedAllPaths && pathsCount < 5) {
       let jarList = _.cloneDeep(initialJarList);
       let mainJar = jarList.find((jar: Jar) => jar.id === targetJar) as Jar;
 
-      let history: History = [];
-
-      let steps: Step[] | undefined = [];
+      let history: History = [jarList.map(({ currentSize }) => currentSize)];
       let score = 0;
 
       const result = search(
@@ -170,17 +182,20 @@ export const greedySearch = async (
         historyList,
         score,
       );
-      if (result.steps) {
-        resultSteps.push(result.steps);
+      if (result?.steps) {
+        resultSteps.push(result?.steps);
         scoreList.push(result.score);
+        historyList.push(history);
+        pathsCount++;
       } else {
         mappedAllPaths = true;
       }
     }
 
-   const choosedPathIndex = scoreList.indexOf(Math.min(...scoreList))
+    const choosedPathIndex = scoreList.indexOf(Math.min(...scoreList));
 
-   return resultSteps[choosedPathIndex]
-
-  } catch (error) {}
+    return resultSteps[choosedPathIndex];
+  } catch (error) {
+    console.error(error);
+  }
 };
