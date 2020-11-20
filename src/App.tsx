@@ -16,14 +16,14 @@ import {
 } from "antd";
 import StepList from "./components/StepsList/StepsList";
 import { deepSearch } from "./utils/deepSearch";
-import { breadthFirstSearch } from "./utils/breadthFirstSearch";
+import { backTrackingSearch } from "./utils/backTrackingSearch";
 import { orderedSearch } from "./utils/orderedSearch";
 import { greedySearch } from "./utils/greedySearch";
-import { JarMap, Step, Jar,History } from "./types";
+import { JarMap, Step, Jar } from "./types";
 
-const limit = 10;
+const limit = 2;
 const options = [
-  { label: "Breadth First Search", value: "breadthFirst" },
+  { label: "Backtracking", value: "backtracking" },
   { label: "Depth Search", value: "depth" },
   { label: "Ordered Search", value: "ordered" },
   { label: "Greedy Search", value: "greedy" },
@@ -57,8 +57,8 @@ export default function App() {
           _.cloneDeep(jarMap[targetJar as number]),
           [jarList.map(({ currentSize }) => currentSize)] as any,
         );
-      } else if (method === "breadthFirst") {
-        result = breadthFirstSearch(
+      } else if (method === "backtracking") {
+        result = backTrackingSearch(
           jarList,
           targetSize as number,
           jarList.find((jar: Jar) => jar.id === targetJar) as Jar,
