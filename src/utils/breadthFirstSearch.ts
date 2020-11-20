@@ -11,43 +11,64 @@ import {
   transferContent,
 } from "./baseTools";
 
-let resultSteps: Step[] = [];
-
 const search = (
   jarMatrix: Jar[][],
   targetSize: number,
+  mainJarIndex: number,
   history = [],
-  steps: Step[] = [],
+  stepsMatrix: Step[][] = [],
 ) => {
-  for (let jarList of jarMatrix) {
-    for (let i = 0; i < jarList.length; i++) {
-      let moment;
-      let currentJar = jarList[i];
+  let newJarMatrix = []
+  
+  for (let jarListIndex in jarMatrix) {
+    let length = jarMatrix[jarListIndex].length;
 
-      moment = canFillJar(currentJar, jarList, history);
-      if (moment) {
-        setMomentOnHistory(moment, history);
-        fillJar(currentJar, steps);
-      } else {
-        moment = canDrainJar(currentJar, jarList, history);
+    for (let i = 0; i < length; i++) {
+      let moment;
+      let jarListCopy = _.cloneDeep(jarMatrix[jarListIndex]);
+      let currentJar = jarListCopy[i];
+      let mainJar = jarListCopy[mainJarIndex]; //get reference of main jar
+      let steps = _.cloneDeep(stepsMatrix[jarListIndex] || []);
+
+      if (!hasReachedGoal(mainJar, targetSize)) {
+        moment = canFillJar(currentJar, jarListCopy, history);
+
         if (moment) {
           setMomentOnHistory(moment, history);
-          drainJar(currentJar, steps);
+          fillJar(currentJar, steps);
         } else {
-          for (let j = 0; j < jarList.length; j++) {
-            let secondJar = jarList[j];
-            moment = canTransfer(currentJar, secondJar, jarList, history);
-            if (i !== j && moment) {
-              setMomentOnHistory(moment, history);
-              transferContent(currentJar, secondJar, steps);
+          moment = canDrainJar(currentJar, jarListCopy, history);
+
+          if (moment) {
+            setMomentOnHistory(moment, history);
+            drainJar(currentJar, steps);
+          } else {
+            for (let j = 0; j < length; j++) {
+              let anotherJar = jarListCopy[j];
+
+              moment = canTransfer(
+                currentJar,
+                anotherJar,
+                jarListCopy,
+                history,
+              );
+
+              if (i !== j && moment) {
+                setMomentOnHistory(moment, history);
+                transferContent(currentJar, anotherJar, steps);
+              }
             }
           }
         }
-       
-      }
+        newJarMatrix.push(jarListCopy)
 
+      }else{
+        return steps
+      }
     }
   }
+
+  search(newJarMatrix,targetSize,mainJarIndex,history,)
 };
 
 export const breadthFirst = async (
@@ -56,7 +77,9 @@ export const breadthFirst = async (
   mainJar: Jar,
 ) => {
   try {
-    let newJarList;
+    let mainJarIndex = jarList.findIndex((jar) => jar.id === mainJar.id);
+    search([jarList], targetSize, mainJarIndex);
+    return;
   } catch (error) {
     console.error(error);
   }
