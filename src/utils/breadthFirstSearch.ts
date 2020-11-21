@@ -73,29 +73,12 @@ const search: Search = (
         }
 
         newJarMatrix.push(jarListCopy);
-        newStepsMatrix.push(steps);
-        // console.log("matrix", stepsMatrix);
-        // console.log("steps", steps);
-        // debugger;
-        // if (jarListIndex in stepsMatrix) {
-        //   stepsMatrix[jarListIndex] = steps;
-        // } else {
-          
-        // }
-
-        // if (i in stepsMatrix) {
-        //   console.log('steps',steps)
-        //   stepsMatrix[jarListIndex] = steps;
-        // } else {
-        //   stepsMatrix[jarListIndex].push(steps);
-        // }
+        newStepsMatrix.push(steps); 
       } else {
-        // console.log("Finish", stepsMatrix, jarListCopy);
         return steps;
       }
     }
   }
-console.log(newStepsMatrix)
   return search(newJarMatrix, targetSize, mainJarIndex, history, newStepsMatrix);
 };
 
