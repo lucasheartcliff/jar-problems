@@ -19,12 +19,15 @@ import { deepSearch } from "./utils/deepSearch";
 import { backTrackingSearch } from "./utils/backTrackingSearch";
 import { orderedSearch } from "./utils/orderedSearch";
 import { greedySearch } from "./utils/greedySearch";
+import { breadthSearch } from "./utils/breadthFirstSearch";
+
 import { JarMap, Step, Jar } from "./types";
 
 const limit = 2;
 const options = [
   { label: "Backtracking", value: "backtracking" },
-  { label: "Depth Search", value: "depth" },
+  { label: "Breadth First", value: "breadth" },
+  { label: "Depth First", value: "depth" },
   { label: "Ordered Search", value: "ordered" },
   { label: "Greedy Search", value: "greedy" },
 ];
@@ -50,26 +53,39 @@ export default function App() {
     if (checkIntegrity() && !isNaN(targetSize as number) && targetJar) {
       const jarList: Jar[] = _.cloneDeep(Object.values(jarMap));
       let result: any;
-      if (method === "depth") {
-        result = deepSearch(
-          jarList,
-          targetSize as number,
-          _.cloneDeep(jarMap[targetJar as number]),
-          [jarList.map(({ currentSize }) => currentSize)] as any,
-        );
-      } else if (method === "backtracking") {
-        result = backTrackingSearch(
-          jarList,
-          targetSize as number,
-          jarList.find((jar: Jar) => jar.id === targetJar) as Jar,
-        );
-      } else if (method === "ordered") {
-        result = orderedSearch(jarList, targetSize as number, targetJar);
-      } else if (method === "greedy") {
-        result = greedySearch(jarList, targetSize as number, targetJar);
+
+      switch (method) {
+        case "depth":
+          result = deepSearch(
+            jarList,
+            targetSize as number,
+            _.cloneDeep(jarMap[targetJar as number]),
+            [jarList.map(({ currentSize }) => currentSize)] as any,
+          );
+          break;
+        case "backtracking":
+          result = backTrackingSearch(
+            jarList,
+            targetSize as number,
+            jarList.find((jar: Jar) => jar.id === targetJar) as Jar,
+          );
+          break;
+        case "breadth":
+          result = breadthSearch(
+            jarList,
+            targetSize as number,
+            jarList.find((jar: Jar) => jar.id === targetJar) as Jar,
+          );
+          break;
+        case "ordered":
+          result = orderedSearch(jarList, targetSize as number, targetJar);
+          break;
+        case "greedy":
+          result = greedySearch(jarList, targetSize as number, targetJar);
+          break;
       }
 
-      result.then((steps: Step[]) => {
+      result?.then((steps: Step[]) => {
         if (steps) {
           message.success("Success !!!");
           setStepList(steps);

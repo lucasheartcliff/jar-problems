@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _, { isArray } from "lodash";
 import { Jar, Step } from "../types";
 import {
   canDrainJar,
@@ -11,15 +11,24 @@ import {
   transferContent,
 } from "./baseTools";
 
-const search = (
+type Search = (
   jarMatrix: Jar[][],
   targetSize: number,
   mainJarIndex: number,
-  history = [],
-  stepsMatrix: Step[][] = [],
+  history: any | null,
+  stepsMatrix: Step[][],
+) => Step[] | undefined;
+
+const search: Search = (
+  jarMatrix: Jar[][],
+  targetSize: number,
+  mainJarIndex: number,
+  history,
+  stepsMatrix: Step[][],
 ) => {
-  let newJarMatrix = []
-  
+  let newJarMatrix = [];
+  let newStepsMatrix = [];
+
   for (let jarListIndex in jarMatrix) {
     let length = jarMatrix[jarListIndex].length;
 
@@ -28,18 +37,22 @@ const search = (
       let jarListCopy = _.cloneDeep(jarMatrix[jarListIndex]);
       let currentJar = jarListCopy[i];
       let mainJar = jarListCopy[mainJarIndex]; //get reference of main jar
-      let steps = _.cloneDeep(stepsMatrix[jarListIndex] || []);
+
+      let steps =
+        jarListIndex in stepsMatrix
+          ? stepsMatrix[jarListIndex]
+          : [];
 
       if (!hasReachedGoal(mainJar, targetSize)) {
         moment = canFillJar(currentJar, jarListCopy, history);
 
-        if (moment) {
+        if (isArray(moment)) {
           setMomentOnHistory(moment, history);
           fillJar(currentJar, steps);
         } else {
           moment = canDrainJar(currentJar, jarListCopy, history);
 
-          if (moment) {
+          if (isArray(moment)) {
             setMomentOnHistory(moment, history);
             drainJar(currentJar, steps);
           } else {
@@ -53,33 +66,56 @@ const search = (
                 history,
               );
 
-              if (i !== j && moment) {
+              if (i !== j && isArray(moment)) {
                 setMomentOnHistory(moment, history);
                 transferContent(currentJar, anotherJar, steps);
+                break;
               }
             }
           }
         }
-        newJarMatrix.push(jarListCopy)
 
-      }else{
-        return steps
+        newJarMatrix.push(jarListCopy);
+        // console.log("matrix", stepsMatrix);
+        // console.log("steps", steps);
+        // debugger;
+        stepsMatrix[jarListIndex] = steps;
+        // if (i in stepsMatrix) {
+        //   console.log('steps',steps)
+        //   stepsMatrix[jarListIndex] = steps;
+        // } else {
+        //   stepsMatrix[jarListIndex].push(steps);
+        // }
+      } else {
+        // console.log("Finish", stepsMatrix, jarListCopy);
+        return steps;
       }
     }
   }
 
-  search(newJarMatrix,targetSize,mainJarIndex,history,)
+  return search(
+    newJarMatrix,
+    targetSize,
+    mainJarIndex,
+    history,
+    stepsMatrix,
+  );
 };
 
-export const breadthFirst = async (
+export const breadthSearch = async (
   jarList: Jar[],
   targetSize: number,
   mainJar: Jar,
 ) => {
   try {
     let mainJarIndex = jarList.findIndex((jar) => jar.id === mainJar.id);
-    search([jarList], targetSize, mainJarIndex);
-    return;
+    return search(
+      [jarList],
+      targetSize,
+      mainJarIndex,
+      [jarList.map((jar) => jar.currentSize)],
+      [],
+    );
   } catch (error) {
     console.error(error);
   }
