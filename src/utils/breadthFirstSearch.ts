@@ -38,10 +38,7 @@ const search: Search = (
       let currentJar = jarListCopy[i];
       let mainJar = jarListCopy[mainJarIndex]; //get reference of main jar
 
-      let steps =
-        jarListIndex in stepsMatrix
-          ? stepsMatrix[jarListIndex]
-          : [];
+      let steps = jarListIndex in stepsMatrix ? _.cloneDeep(stepsMatrix[jarListIndex]) : [];
 
       if (!hasReachedGoal(mainJar, targetSize)) {
         moment = canFillJar(currentJar, jarListCopy, history);
@@ -76,10 +73,16 @@ const search: Search = (
         }
 
         newJarMatrix.push(jarListCopy);
+        newStepsMatrix.push(steps);
         // console.log("matrix", stepsMatrix);
         // console.log("steps", steps);
         // debugger;
-        stepsMatrix[jarListIndex] = steps;
+        // if (jarListIndex in stepsMatrix) {
+        //   stepsMatrix[jarListIndex] = steps;
+        // } else {
+          
+        // }
+
         // if (i in stepsMatrix) {
         //   console.log('steps',steps)
         //   stepsMatrix[jarListIndex] = steps;
@@ -92,14 +95,8 @@ const search: Search = (
       }
     }
   }
-
-  return search(
-    newJarMatrix,
-    targetSize,
-    mainJarIndex,
-    history,
-    stepsMatrix,
-  );
+console.log(newStepsMatrix)
+  return search(newJarMatrix, targetSize, mainJarIndex, history, newStepsMatrix);
 };
 
 export const breadthSearch = async (
