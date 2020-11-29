@@ -1,5 +1,5 @@
 import * as React from "react";
-import _ from "lodash";
+import _, { isNumber } from "lodash";
 import styled from "styled-components";
 import {
   Button,
@@ -13,6 +13,7 @@ import {
   Spin,
   InputNumber,
   Select,
+  Modal,
 } from "antd";
 import StepList from "./components/StepsList/StepsList";
 import { deepSearch } from "./utils/deepSearch";
@@ -20,6 +21,7 @@ import { backTrackingSearch } from "./utils/backTrackingSearch";
 import { orderedSearch } from "./utils/orderedSearch";
 import { greedySearch } from "./utils/greedySearch";
 import { breadthSearch } from "./utils/breadthFirstSearch";
+import { iteratedSearch } from "./utils/iteratedSearch";
 
 import { JarMap, Step, Jar } from "./types";
 
@@ -30,6 +32,7 @@ const options = [
   { label: "Depth First", value: "depth" },
   { label: "Ordered Search", value: "ordered" },
   { label: "Greedy Search", value: "greedy" },
+  { label: "Iterated Search", value: "iterated" },
 ];
 export default function App() {
   const [jarMap, setJarMap] = React.useState<JarMap>({});
@@ -39,6 +42,8 @@ export default function App() {
   const [hasFailed, setHasFailed] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [method, setMethod] = React.useState(options[0].value);
+  const [maxLevel, setMaxLevel] = React.useState<number>();
+  const [modalView, setModalView] = React.useState(false);
 
   const checkIntegrity = () => {
     for (const { name, maxSize } of Object.values(jarMap)) {
@@ -50,7 +55,15 @@ export default function App() {
   };
 
   const onClickButton = () => {
-    if (checkIntegrity() && !isNaN(targetSize as number) && targetJar) {
+    try {
+      if (
+        !checkIntegrity() ||
+        !isNumber(targetSize) ||
+        !targetJar ||
+        (method === "iterated" && !isNumber(maxLevel))
+      ) {
+        throw new Error("Please fill all fields");
+      }
       const jarList: Jar[] = _.cloneDeep(Object.values(jarMap));
       let result: any;
 
@@ -83,6 +96,14 @@ export default function App() {
         case "greedy":
           result = greedySearch(jarList, targetSize as number, targetJar);
           break;
+        case "iterated":
+          result = iteratedSearch(
+            jarList,
+            targetSize as number,
+            jarList.find((jar: Jar) => jar.id === targetJar) as Jar,
+            maxLevel as number,
+          );
+          break;
       }
 
       result?.then((steps: Step[]) => {
@@ -93,10 +114,10 @@ export default function App() {
           message.error("Is not possible with these Jars");
         }
       });
-    } else {
-      message.warn("Please fill all fields");
+      setLoading(false);
+    } catch (error) {
+      message.warn(error);
     }
-    setLoading(false);
   };
 
   const onRemove = (id: number) => {
@@ -147,21 +168,55 @@ export default function App() {
             </Button>
           </div>
           <div>
-            <label style={{ marginLeft: 30 }}>{"Method:"}</label>
-            <Select
-              style={{ margin: "0 10px", width: 250 }}
-              value={method}
-              onChange={(value: string) => {
-                return setMethod(value);
-              }}
+            <Button
+              type={"primary"}
+              onClick={() => setModalView(true)}
+              loading={loading}
             >
-              {options.map(({ value, label }, index) => (
-                <Select.Option key={index} value={value}>
-                  {label}
-                </Select.Option>
-              ))}
-            </Select>
+              Settings
+            </Button>
           </div>
+
+          <Modal
+            title="Settings"
+            visible={modalView}
+            onOk={() => setModalView(false)}
+            onCancel={() => setModalView(false)}
+          >
+            <ModalContainer>
+              <ModalItem>
+                <label>{"Method:"}</label>
+                <Select
+                  style={{ width: "300px" }}
+                  value={method}
+                  onChange={(value: string) => {
+                    return setMethod(value);
+                  }}
+                >
+                  {options.map(({ value, label }, index) => (
+                    <Select.Option key={index} value={value}>
+                      {label}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </ModalItem>
+              <ModalItem>
+                {method === "iterated" ? (
+                  <>
+                    <label>{"Max Level:"}</label>
+                    <InputNumber
+                      value={maxLevel}
+                      style={{ width: "300px" }}
+                      disabled={loading}
+                      onChange={(value) => {
+                        setMaxLevel(Number(value));
+                      }}
+                    />
+                  </>
+                ) : null}
+              </ModalItem>
+            </ModalContainer>
+          </Modal>
         </Header>
         <CardList>
           {!hasFailed && !stepList.length ? (
@@ -303,4 +358,18 @@ const FixedBar = styled.div`
   background: #ccc;
   padding: 0 10px;
   height: 50px;
+`;
+
+const ModalContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 80px;
+`;
+
+const ModalItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
 `;
