@@ -1,5 +1,5 @@
 import { isArray } from "lodash";
-import { Jar, Step } from "../types";
+import { Jar, Step, History } from "../types";
 import {
   canDrainJar,
   canFillJar,

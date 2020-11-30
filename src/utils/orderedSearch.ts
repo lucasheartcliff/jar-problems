@@ -1,5 +1,5 @@
 import _, { isArray } from "lodash";
-import { Jar, Step } from "../types";
+import { Jar, Step, History } from "../types";
 import {
   canDrainJar,
   canFillJar,
@@ -16,7 +16,7 @@ const hasHappenedBefore = (
   moment: number[],
   historyList: History[],
 ) => {
-  if (historyList.length > (moment.length+level)) {
+  if (historyList.length > moment.length + level) {
     for (const history of historyList) {
       if (history.length - 1 >= level) {
         let equalValuesCount = 0;
