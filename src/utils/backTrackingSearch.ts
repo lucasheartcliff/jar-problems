@@ -24,7 +24,7 @@ export const backTrackingSearch = async (
   let checkAllPossibilities = 0;
 
   let resultSteps: Step[] = [];
-  let history: any = [];
+  let history: History = [];
 
   try {
     while (

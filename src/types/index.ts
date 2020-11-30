@@ -19,4 +19,4 @@ export interface Step {
   destiny: SimplifiedJar;
 }
 
-export type History = number[][]
+export type History = any
