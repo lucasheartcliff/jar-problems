@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "keywords": [],
-  "main": "./src/index.tsx",
+  "main": "src/index.tsx",
   "dependencies": {
     "antd": "4.6.6",
     "lodash": "4.17.20",
