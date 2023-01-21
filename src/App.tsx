@@ -27,12 +27,12 @@ import { JarMap, Step, Jar } from "./types";
 
 const limit = 2;
 const options = [
-  { label: "Backtracking", value: "backtracking" },
-  { label: "Breadth First", value: "breadth" },
+  //{ label: "Backtracking", value: "backtracking" },
+  //{ label: "Breadth First", value: "breadth" },
   { label: "Depth First", value: "depth" },
-  { label: "Ordered Search", value: "ordered" },
-  { label: "Greedy Search", value: "greedy" },
-  { label: "Iterated Search", value: "iterated" },
+  //{ label: "Ordered Search", value: "ordered" },
+  //{ label: "Greedy Search", value: "greedy" },
+  //{ label: "Iterated Search", value: "iterated" },
 ];
 export default function App() {
   const [jarMap, setJarMap] = React.useState<JarMap>({});

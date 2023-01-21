@@ -5,6 +5,7 @@ import Step from "./Step";
 const StepsList: React.FC<any> = ({ data }) => {
   return (
     <List
+      id={"step-list"}
       dataSource={data}
       renderItem={(item: any) => {
         return <Step {...item} />;

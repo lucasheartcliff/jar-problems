@@ -47,7 +47,7 @@ const Step: React.FC<any> = ({ type, origin, destiny }: StepType) => {
         );
     }
   };
-  return <Container>{renderContent()}</Container>;
+  return <Container id={"step"}>{renderContent()}</Container>;
 };
 export default Step;
 
