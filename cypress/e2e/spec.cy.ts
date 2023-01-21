@@ -1,4 +1,4 @@
-describe('Success workflow', () => {
+describe('Test Cases', () => {
   it('should find solution', () => {
 
     cy.visit('http://localhost:3000/');
