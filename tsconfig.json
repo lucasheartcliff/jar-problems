@@ -1,9 +1,10 @@
 {
   "include": [
-    "./src/*"
+    "./src/*",
+    "**/*.ts"
   ],
   "compilerOptions": {
-    "strict": true,
+    "strict": false,
     "esModuleInterop": true,
     "lib": [
       "dom",
@@ -15,10 +16,14 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
+    "module": "ESNext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    "types": [
+      "cypress",
+      "node"
+    ]
   }
 }

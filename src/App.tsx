@@ -134,9 +134,9 @@ export default function App() {
   const onCreateJar = () => {
     let maxId = Object.values(jarMap).length
       ? Math.max.apply(
-          null,
-          Object.values(jarMap).map(({ id }) => id),
-        ) + 1
+        null,
+        Object.values(jarMap).map(({ id }) => id),
+      ) + 1
       : 1;
     setJarMap({
       ...jarMap,
@@ -152,6 +152,7 @@ export default function App() {
             <label>{"Target Size:"}</label>
             <InputNumber
               value={targetSize}
+              id={'targetSize'}
               style={{ width: "300px", margin: "0 20px" }}
               disabled={loading}
               onChange={(value) => {
@@ -162,6 +163,7 @@ export default function App() {
               type={"primary"}
               onClick={onCreateJar}
               loading={loading}
+              id={'addJar'}
               disabled={Object.values(jarMap).length >= limit}
             >
               Add Jar
@@ -236,7 +238,7 @@ export default function App() {
                       </Button>
                     }
                   >
-                    <Form name="basic" validateTrigger={["onChange", "onBlur"]}>
+                    <Form name={`basic-${id}`} validateTrigger={["onChange", "onBlur"]}>
                       <Form.Item
                         key={id}
                         label="Name"
@@ -250,6 +252,7 @@ export default function App() {
                         ]}
                       >
                         <Input
+                          id={`name-${id}`}
                           onChange={(e) =>
                             onChangeInfo(id, "name", e.target.value)
                           }
@@ -270,6 +273,7 @@ export default function App() {
                       >
                         <Input
                           key={id}
+                          id={`maxSize-${id}`}
                           onChange={(e) =>
                             onChangeInfo(id, "maxSize", Number(e.target.value))
                           }
@@ -278,6 +282,7 @@ export default function App() {
 
                       <Checkbox
                         checked={id === targetJar}
+                        id={`target-${id}`}
                         onChange={() => setTargetJar(id)}
                       >
                         Is Target Jar
@@ -288,14 +293,15 @@ export default function App() {
               ))}
             </Row>
           ) : (
-            <StepList data={stepList} />
-          )}
+              <StepList data={stepList} />
+            )}
         </CardList>
         <FixedBar>
           <Button
             type={"primary"}
             htmlType={"submit"}
             loading={loading}
+            id={'start'}
             onClick={() => {
               setLoading(true);
               setTimeout(() => onClickButton(), 1000);
@@ -319,7 +325,7 @@ export default function App() {
           ) : null}
         </FixedBar>
       </Spin>
-    </Container>
+    </Container >
   );
 }
 
